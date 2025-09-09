@@ -64,13 +64,13 @@ export const DashboardLayout = () => {
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Main content */}
-      <div className="lg:pl-72">
+      <div className="lg:pl-72 min-h-screen">
         {/* Header */}
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 sm:px-6">
+        <header className="sticky top-0 z-30 flex h-14 sm:h-16 items-center gap-2 sm:gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-3 sm:px-4 lg:px-6">
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden"
+            className="lg:hidden h-8 w-8 sm:h-10 sm:w-10"
             onClick={() => setSidebarOpen(true)}
           >
             <Menu className="h-5 w-5" />
@@ -79,11 +79,12 @@ export const DashboardLayout = () => {
           <div className="flex-1" />
 
           {/* Header actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             {/* Theme toggle */}
             <Button
               variant="ghost"
               size="icon"
+              className="h-8 w-8 sm:h-10 sm:w-10"
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             >
               <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
@@ -91,16 +92,16 @@ export const DashboardLayout = () => {
             </Button>
 
             {/* Notifications */}
-            <Button variant="ghost" size="icon" className="relative">
+            <Button variant="ghost" size="icon" className="relative h-8 w-8 sm:h-10 sm:w-10">
               <Bell className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 h-3 w-3 bg-destructive rounded-full text-xs" />
+              <span className="absolute -top-1 -right-1 h-2 w-2 sm:h-3 sm:w-3 bg-destructive rounded-full text-xs" />
             </Button>
 
             {/* User menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                  <Avatar className="h-10 w-10">
+                <Button variant="ghost" className="relative h-8 w-8 sm:h-10 sm:w-10 rounded-full">
+                  <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
                     <AvatarImage src={profile?.avatar_url} alt={profile?.full_name} />
                     <AvatarFallback className="bg-primary text-primary-foreground">
                       {profile?.full_name ? getInitials(profile.full_name) : 'U'}
@@ -144,7 +145,7 @@ export const DashboardLayout = () => {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 space-y-4 p-4 sm:p-6">
+        <main className="flex-1 space-y-3 sm:space-y-4 p-3 sm:p-4 lg:p-6 min-h-[calc(100vh-3.5rem)] sm:min-h-[calc(100vh-4rem)]">
           <Outlet />
         </main>
       </div>

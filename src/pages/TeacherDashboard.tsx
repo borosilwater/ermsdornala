@@ -127,32 +127,33 @@ const TeacherDashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 p-2 sm:p-0">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Teacher Dashboard</h1>
-          <p className="text-gray-600 mt-2">Manage your classes, students, and content</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Teacher Dashboard</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-2">Manage your classes, students, and content</p>
         </div>
         <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-          Teacher Portal
+          <span className="hidden sm:inline">Teacher Portal</span>
+          <span className="sm:hidden">Teacher</span>
         </Badge>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-2 lg:grid-cols-4">
         {statCards.map((stat, index) => {
           const Icon = stat.icon;
           return (
             <Card key={index} className="hover:shadow-lg transition-shadow duration-300">
-              <CardContent className="p-6">
+              <CardContent className="p-3 sm:p-4 lg:p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                    <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+                    <p className="text-xs sm:text-sm font-medium text-gray-600">{stat.title}</p>
+                    <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900">{stat.value}</p>
                   </div>
-                  <div className={`p-3 rounded-full ${stat.bgColor}`}>
-                    <Icon className={`h-6 w-6 ${stat.color}`} />
+                  <div className={`p-2 sm:p-3 rounded-full ${stat.bgColor}`}>
+                    <Icon className={`h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 ${stat.color}`} />
                   </div>
                 </div>
               </CardContent>
@@ -172,40 +173,44 @@ const TeacherDashboard = () => {
             Create and manage news, announcements, events, and exam results
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-3 sm:p-6">
           <Tabs defaultValue="news" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 text-xs sm:text-sm">
               <TabsTrigger value="news" className="flex items-center">
                 <FileText className="mr-2 h-4 w-4" />
-                News
+                <span className="hidden sm:inline">News</span>
+                <span className="sm:hidden">News</span>
               </TabsTrigger>
               <TabsTrigger value="announcements" className="flex items-center">
                 <Bell className="mr-2 h-4 w-4" />
-                Announcements
+                <span className="hidden sm:inline">Announcements</span>
+                <span className="sm:hidden">Announce</span>
               </TabsTrigger>
-              <TabsTrigger value="events" className="flex items-center">
+              <TabsTrigger value="events" className="flex items-center col-span-1 sm:col-span-1">
                 <Calendar className="mr-2 h-4 w-4" />
-                Events
+                <span className="hidden sm:inline">Events</span>
+                <span className="sm:hidden">Events</span>
               </TabsTrigger>
-              <TabsTrigger value="results" className="flex items-center">
+              <TabsTrigger value="results" className="flex items-center col-span-1 sm:col-span-1">
                 <TrendingUp className="mr-2 h-4 w-4" />
-                Exam Results
+                <span className="hidden sm:inline">Exam Results</span>
+                <span className="sm:hidden">Results</span>
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="news" className="mt-6">
+            <TabsContent value="news" className="mt-3 sm:mt-6">
               <NewsManager />
             </TabsContent>
 
-            <TabsContent value="announcements" className="mt-6">
+            <TabsContent value="announcements" className="mt-3 sm:mt-6">
               <AnnouncementManager />
             </TabsContent>
 
-            <TabsContent value="events" className="mt-6">
+            <TabsContent value="events" className="mt-3 sm:mt-6">
               <EventManager />
             </TabsContent>
 
-            <TabsContent value="results" className="mt-6">
+            <TabsContent value="results" className="mt-3 sm:mt-6">
               <ExamResultManager />
             </TabsContent>
           </Tabs>

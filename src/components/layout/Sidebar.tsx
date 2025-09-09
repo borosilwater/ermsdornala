@@ -56,24 +56,24 @@ export const Sidebar = ({ open, onClose }: SidebarProps) => {
   return (
     <>
       <div className={cn(
-        "fixed inset-y-0 left-0 z-50 w-72 bg-card border-r transition-transform duration-300 ease-in-out lg:translate-x-0",
+        "fixed inset-y-0 left-0 z-50 w-64 sm:w-72 bg-card border-r transition-transform duration-300 ease-in-out lg:translate-x-0",
         open ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between h-16 px-6 border-b">
+          <div className="flex items-center justify-between h-14 sm:h-16 px-4 sm:px-6 border-b">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
                 <GraduationCap className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 EduHub
               </span>
             </div>
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden"
+              className="lg:hidden h-8 w-8"
               onClick={onClose}
             >
               <X className="h-5 w-5" />
@@ -81,15 +81,15 @@ export const Sidebar = ({ open, onClose }: SidebarProps) => {
           </div>
 
           {/* User info */}
-          <div className="p-4 border-b bg-gradient-to-r from-primary/5 to-accent/5">
+          <div className="p-3 sm:p-4 border-b bg-gradient-to-r from-primary/5 to-accent/5">
             <div className="space-y-2">
-              <p className="text-sm font-medium truncate">{profile?.full_name}</p>
+              <p className="text-xs sm:text-sm font-medium truncate">{profile?.full_name}</p>
               <div className="flex items-center gap-2">
                 <Badge variant="secondary" className="text-xs">
                   {profile?.role?.charAt(0).toUpperCase() + profile?.role?.slice(1)}
                 </Badge>
                 {profile?.class_name && (
-                  <Badge variant="outline" className="text-xs">
+                  <Badge variant="outline" className="text-xs hidden sm:flex">
                     {profile.class_name}
                   </Badge>
                 )}
@@ -98,8 +98,8 @@ export const Sidebar = ({ open, onClose }: SidebarProps) => {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 overflow-y-auto p-4">
-            <ul className="space-y-2">
+          <nav className="flex-1 overflow-y-auto p-3 sm:p-4">
+            <ul className="space-y-1 sm:space-y-2">
               {filteredNavigation.map((item) => {
                 const Icon = item.icon;
                 return (
@@ -108,14 +108,14 @@ export const Sidebar = ({ open, onClose }: SidebarProps) => {
                       to={item.href}
                       onClick={onClose}
                       className={cn(
-                        "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                        "flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200",
                         isActive(item.href)
                           ? "bg-primary text-primary-foreground shadow-md"
                           : "text-foreground hover:bg-accent hover:text-accent-foreground"
                       )}
                     >
                       <Icon className="h-5 w-5 flex-shrink-0" />
-                      <span className="truncate">{item.name}</span>
+                      <span className="truncate text-xs sm:text-sm">{item.name}</span>
                     </Link>
                   </li>
                 );
@@ -124,10 +124,10 @@ export const Sidebar = ({ open, onClose }: SidebarProps) => {
           </nav>
 
           {/* Footer */}
-          <div className="p-4 border-t bg-gradient-to-r from-muted/50 to-accent/10">
+          <div className="p-3 sm:p-4 border-t bg-gradient-to-r from-muted/50 to-accent/10">
             <div className="text-xs text-muted-foreground text-center">
               <p>EduHub v1.0</p>
-              <p>Powered by modern technology</p>
+              <p className="hidden sm:block">Powered by modern technology</p>
             </div>
           </div>
         </div>

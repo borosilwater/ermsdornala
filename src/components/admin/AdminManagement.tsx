@@ -321,24 +321,40 @@ const AdminManagement = () => {
     try {
       setLoading(true);
       
-      // Get selected users' emails
+      // Get selected users with their auth emails
       const selectedUserData = users.filter(user => selectedUsers.includes(user.id));
       
-      // Get emails from profiles table
+      // Get emails from auth.users table for selected users
+      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+      
+      if (authError) {
+        console.error('Failed to get auth users:', authError);
+        toast({
+          title: "Error",
+          description: "Failed to get user email addresses",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Map user_ids to emails from auth.users
       const emails = selectedUserData
-        .map(user => user.email)
+        .map(user => {
+          const authUser = authUsers.users.find(au => au.id === user.user_id);
+          return authUser?.email;
+        })
         .filter(Boolean) as string[];
 
-      // If no emails found in profiles, show error and ask users to add emails
       if (emails.length === 0) {
         toast({
           title: "No Email Addresses Found",
-          description: "Please ask users to add their email addresses in their profile settings first.",
+          description: "No valid email addresses found for selected users.",
           variant: "destructive"
         });
         return;
       }
 
+      console.log(`📧 Sending email to ${emails.length} recipients:`, emails);
 
       const { data, error } = await supabase.functions.invoke('send-bulk-email', {
         body: {
@@ -352,20 +368,22 @@ const AdminManagement = () => {
       if (error) throw error;
 
       // Show detailed results
-      const successCount = data?.summary?.success || emails.length;
+      const successCount = data?.summary?.success || 0;
       const failureCount = data?.summary?.failed || 0;
       
       if (failureCount === 0) {
         toast({
           title: "Success",
-          description: `Email sent to ${successCount} users successfully!`
+          description: `📧 Email sent to ${successCount} users successfully!\n\nRecipients: ${emails.join(', ')}`
         });
       } else {
         toast({
           title: "Partial Success",
-          description: `Email sent to ${successCount} users, ${failureCount} failed. Check logs for details.`
+          description: `📊 Results: ${successCount} sent, ${failureCount} failed\n\nCheck console for details.`
         });
       }
+      
+      console.log('📊 Email Results:', data);
       
       setSelectedUsers([]);
       setEmailSubject('');
@@ -374,7 +392,7 @@ const AdminManagement = () => {
       console.error('Failed to send email:', error);
       toast({
         title: "Error",
-        description: "Failed to send email. Please try again.",
+        description: `Failed to send email: ${error.message}`,
         variant: "destructive"
       });
     } finally {

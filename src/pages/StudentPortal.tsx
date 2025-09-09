@@ -183,51 +183,54 @@ const StudentPortal = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 p-2 sm:p-0">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Student Portal</h1>
-          <p className="text-muted-foreground">Welcome back, {profile?.full_name}!</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Student Portal</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Welcome back, {profile?.full_name}!</p>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1 sm:space-x-2">
           <Badge variant="outline" className="flex items-center gap-1">
             <Bell className="h-3 w-3" />
-            {unreadCount} unread
+            <span className="text-xs">{unreadCount}</span>
+            <span className="hidden sm:inline text-xs">unread</span>
           </Badge>
           <Button
             variant="outline"
-            size="sm"
+            size="sm" 
+            className="text-xs sm:text-sm"
             onClick={() => setIsEditing(!isEditing)}
           >
             <Edit className="h-4 w-4 mr-2" />
-            {isEditing ? 'Cancel' : 'Edit Profile'}
+            <span className="hidden sm:inline">{isEditing ? 'Cancel' : 'Edit Profile'}</span>
+            <span className="sm:hidden">{isEditing ? 'Cancel' : 'Edit'}</span>
           </Button>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Current GPA</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium">Current GPA</CardTitle>
             <Star className="h-4 w-4 text-yellow-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{calculateGPA()}</div>
+          <CardContent className="p-3 sm:p-6 pt-0">
+            <div className="text-lg sm:text-2xl font-bold">{calculateGPA()}</div>
             <p className="text-xs text-muted-foreground">
-              Based on {examResults.filter(r => r.status === 'published').length} published exams
+              {examResults.filter(r => r.status === 'published').length} exams
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Exams</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium">Total Exams</CardTitle>
             <Trophy className="h-4 w-4 text-green-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{examResults.length}</div>
+          <CardContent className="p-3 sm:p-6 pt-0">
+            <div className="text-lg sm:text-2xl font-bold">{examResults.length}</div>
             <p className="text-xs text-muted-foreground">
               {examResults.filter(r => r.status === 'published').length} published
             </p>
@@ -235,34 +238,34 @@ const StudentPortal = () => {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Class</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium">Class</CardTitle>
             <GraduationCap className="h-4 w-4 text-blue-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{profile?.class_name || 'N/A'}</div>
+          <CardContent className="p-3 sm:p-6 pt-0">
+            <div className="text-lg sm:text-2xl font-bold">{profile?.class_name || 'N/A'}</div>
             <p className="text-xs text-muted-foreground">Current class</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Notifications</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium">Notifications</CardTitle>
             <Bell className="h-4 w-4 text-purple-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{unreadCount}</div>
+          <CardContent className="p-3 sm:p-6 pt-0">
+            <div className="text-lg sm:text-2xl font-bold">{unreadCount}</div>
             <p className="text-xs text-muted-foreground">Unread messages</p>
           </CardContent>
         </Card>
       </div>
 
-      <Tabs defaultValue="profile" className="space-y-4">
-        <TabsList>
+      <Tabs defaultValue="profile" className="space-y-3 sm:space-y-4">
+        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 text-xs sm:text-sm">
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="results">Exam Results</TabsTrigger>
-          <TabsTrigger value="announcements">Announcements</TabsTrigger>
-          <TabsTrigger value="events">Events</TabsTrigger>
+          <TabsTrigger value="announcements" className="hidden sm:flex">Announcements</TabsTrigger>
+          <TabsTrigger value="events" className="hidden sm:flex">Events</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
         </TabsList>
 

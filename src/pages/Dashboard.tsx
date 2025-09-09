@@ -102,20 +102,20 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 p-2 sm:p-0">
       {/* Welcome Header */}
       <div className="space-y-4">
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">{dashboardContent.title}</h1>
-          <p className="text-muted-foreground">{dashboardContent.subtitle}</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{dashboardContent.title}</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">{dashboardContent.subtitle}</p>
         </div>
         
         {/* Role-specific Portal Access */}
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg border">
-          <div className="flex items-center justify-between">
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 sm:p-6 rounded-lg border">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-3 sm:space-y-0">
             <div>
-              <h3 className="text-lg font-semibold">Access Your Portal</h3>
-              <p className="text-sm text-muted-foreground">
+              <h3 className="text-base sm:text-lg font-semibold">Access Your Portal</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 {profile?.role === 'student' 
                   ? 'View your grades, assignments, and school updates'
                   : profile?.role === 'teacher'
@@ -125,7 +125,7 @@ const Dashboard = () => {
               </p>
             </div>
             <Button 
-              size="lg" 
+              size="default"
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
               onClick={() => {
                 if (profile?.role === 'student') {
@@ -137,7 +137,12 @@ const Dashboard = () => {
                 }
               }}
             >
-              Open {profile?.role === 'student' ? 'Student' : profile?.role === 'teacher' ? 'Teacher' : 'Admin'} Portal
+              <span className="hidden sm:inline">
+                Open {profile?.role === 'student' ? 'Student' : profile?.role === 'teacher' ? 'Teacher' : 'Admin'} Portal
+              </span>
+              <span className="sm:hidden">
+                Open Portal
+              </span>
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </div>
@@ -145,17 +150,17 @@ const Dashboard = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
         {dashboardContent.stats.map((stat) => {
           const Icon = stat.icon;
           return (
             <Card key={stat.name} className="transition-all duration-200 hover:shadow-md">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{stat.name}</CardTitle>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+                <CardTitle className="text-xs sm:text-sm font-medium">{stat.name}</CardTitle>
                 <Icon className={`h-4 w-4 ${stat.color}`} />
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
+              <CardContent className="p-3 sm:p-6 pt-0">
+                <div className="text-lg sm:text-2xl font-bold">{stat.value}</div>
               </CardContent>
             </Card>
           );
@@ -168,19 +173,19 @@ const Dashboard = () => {
           <CardTitle>Quick Actions</CardTitle>
           <CardDescription>Common tasks and shortcuts for your role</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+        <CardContent className="p-3 sm:p-6">
+          <div className="grid gap-2 sm:gap-3 grid-cols-2 lg:grid-cols-4">
             {dashboardContent.quickActions.map((action) => {
               const Icon = action.icon;
               return (
                 <Button
                   key={action.name}
                   variant="outline"
-                  className="h-auto p-4 flex flex-col items-center gap-2 transition-all duration-200 hover:shadow-md hover:scale-105"
+                  className="h-auto p-3 sm:p-4 flex flex-col items-center gap-1 sm:gap-2 transition-all duration-200 hover:shadow-md hover:scale-105"
                   onClick={() => navigate(action.href)}
                 >
-                  <Icon className="h-6 w-6" />
-                  <span className="text-sm font-medium text-center">{action.name}</span>
+                  <Icon className="h-5 w-5 sm:h-6 sm:w-6" />
+                  <span className="text-xs sm:text-sm font-medium text-center leading-tight">{action.name}</span>
                 </Button>
               );
             })}
@@ -189,17 +194,17 @@ const Dashboard = () => {
       </Card>
 
       {/* Recent Activity */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Recent Announcements</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-6">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+              <div key={i} className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg bg-muted/50">
                 <Bell className="h-4 w-4 mt-1 text-primary" />
                 <div className="flex-1 space-y-1">
-                  <p className="text-sm font-medium">Important School Update #{i}</p>
+                  <p className="text-xs sm:text-sm font-medium">Important School Update #{i}</p>
                   <p className="text-xs text-muted-foreground">2 hours ago</p>
                 </div>
                 <Badge variant="secondary" className="text-xs">New</Badge>
@@ -212,12 +217,12 @@ const Dashboard = () => {
           <CardHeader>
             <CardTitle>Upcoming Events</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3 sm:space-y-4 p-3 sm:p-6">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+              <div key={i} className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg bg-muted/50">
                 <Calendar className="h-4 w-4 mt-1 text-accent" />
                 <div className="flex-1 space-y-1">
-                  <p className="text-sm font-medium">School Event #{i}</p>
+                  <p className="text-xs sm:text-sm font-medium">School Event #{i}</p>
                   <p className="text-xs text-muted-foreground">Tomorrow at 10:00 AM</p>
                 </div>
                 <Badge variant="outline" className="text-xs">Tomorrow</Badge>

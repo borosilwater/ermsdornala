@@ -131,6 +131,81 @@ html {
   white-space: pre-wrap;
 }
 
+/* Mobile-specific improvements */
+@media (max-width: 640px) {
+  .line-clamp-1 {
+    -webkit-line-clamp: 1;
+  }
+  
+  .line-clamp-2 {
+    -webkit-line-clamp: 2;
+  }
+  
+  /* Ensure cards don't get too cramped on mobile */
+  .card {
+    min-height: auto;
+  }
+  
+  /* Better button sizing on mobile */
+  .btn-mobile {
+    min-height: 44px; /* iOS recommended touch target */
+    padding: 8px 12px;
+  }
+  
+  /* Improved form inputs on mobile */
+  input, textarea, select {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+  
+  /* Better spacing for mobile cards */
+  .mobile-card-content {
+    padding: 12px;
+  }
+  
+  /* Responsive text sizing */
+  .responsive-text-lg {
+    font-size: 1rem;
+  }
+  
+  .responsive-text-xl {
+    font-size: 1.125rem;
+  }
+  
+  .responsive-text-2xl {
+    font-size: 1.25rem;
+  }
+}
+
+/* Tablet improvements */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .responsive-text-lg {
+    font-size: 1.125rem;
+  }
+  
+  .responsive-text-xl {
+    font-size: 1.25rem;
+  }
+  
+  .responsive-text-2xl {
+    font-size: 1.5rem;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1025px) {
+  .responsive-text-lg {
+    font-size: 1.125rem;
+  }
+  
+  .responsive-text-xl {
+    font-size: 1.25rem;
+  }
+  
+  .responsive-text-2xl {
+    font-size: 1.5rem;
+  }
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */

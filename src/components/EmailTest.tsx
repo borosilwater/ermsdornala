@@ -26,6 +26,8 @@ const EmailTest = () => {
     try {
       setLoading(true);
       
+      console.log('🧪 Testing email to:', testEmail);
+      
       const { data, error } = await supabase.functions.invoke('send-bulk-email', {
         body: {
           to: [testEmail],
@@ -40,22 +42,25 @@ const EmailTest = () => {
       const successCount = data?.summary?.success || 0;
       const failureCount = data?.summary?.failed || 0;
       
+      console.log('📊 Test Email Results:', data);
+      
       if (failureCount === 0) {
         toast({
           title: "Success",
-          description: `Test email sent successfully to ${testEmail}!`
+          description: `📧 Test email sent successfully to ${testEmail}!\n\nService: Gmail SMTP\nDelivery Status: Sent`
         });
       } else {
         toast({
           title: "Error",
-          description: `Failed to send test email. Error: ${data?.error || 'Unknown error'}`
+          description: `❌ Failed to send test email.\n\nError: ${data?.error || 'Unknown error'}\n\nCheck console for details.`,
+          variant: "destructive"
         });
       }
     } catch (error) {
       console.error('Failed to send test email:', error);
       toast({
         title: "Error",
-        description: "Failed to send test email. Please check the console for details.",
+        description: `❌ Failed to send test email.\n\nError: ${error.message}\n\nPlease check the console for details.`,
         variant: "destructive"
       });
     } finally {
@@ -110,8 +115,10 @@ const EmailTest = () => {
         </Button>
         
         <div className="text-sm text-gray-600">
-          <p><strong>Note:</strong> This will send a test email to verify the bulk email system is working.</p>
-          <p>Check the browser console and Supabase logs for detailed information.</p>
+          <p><strong>📧 Gmail SMTP Service:</strong> This will send a test email using Gmail SMTP to verify the bulk email system is working.</p>
+          <p><strong>🔧 Configuration:</strong> Using daredevil9654@gmail.com with app password authentication.</p>
+          <p><strong>📊 Monitoring:</strong> Check the browser console and Supabase logs for detailed delivery information.</p>
+          <p><strong>✅ Expected Result:</strong> Professional HTML email with EMRS Dornala branding delivered to recipient's inbox.</p>
         </div>
       </CardContent>
     </Card>

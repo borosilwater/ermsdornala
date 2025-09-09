@@ -273,36 +273,52 @@ const AdminDashboard = () => {
     try {
       setLoading(true);
 
-      // Get all student emails
+      // Get all student and teacher profiles
       const { data: profiles } = await supabase
         .from('profiles')
         .select('user_id')
-        .eq('role', 'student');
+        .in('role', ['student', 'teacher']);
 
       if (!profiles || profiles.length === 0) {
         toast({
           title: "Error",
-          description: "No students found",
+          description: "No users found",
           variant: "destructive"
         });
         return;
       }
 
-      // Get emails from profiles table
+      // Get emails from auth.users table
+      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+      
+      if (authError) {
+        console.error('Failed to get auth users:', authError);
+        toast({
+          title: "Error",
+          description: "Failed to get user email addresses",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Map user_ids to emails from auth.users
       const emails = profiles
-        .map(profile => profile.email)
+        .map(profile => {
+          const authUser = authUsers.users.find(au => au.id === profile.user_id);
+          return authUser?.email;
+        })
         .filter(Boolean) as string[];
 
-      // If no emails found in profiles, show error and ask users to add emails
       if (emails.length === 0) {
         toast({
           title: "No Email Addresses Found",
-          description: "Please ask students to add their email addresses in their profile settings first.",
+          description: "No valid email addresses found for users.",
           variant: "destructive"
         });
         return;
       }
 
+      console.log(`📧 Sending quick email to ${emails.length} recipients`);
 
       const { data, error } = await supabase.functions.invoke('send-bulk-email', {
         body: {
@@ -316,20 +332,22 @@ const AdminDashboard = () => {
       if (error) throw error;
 
       // Show detailed results
-      const successCount = data?.summary?.success || emails.length;
+      const successCount = data?.summary?.success || 0;
       const failureCount = data?.summary?.failed || 0;
       
       if (failureCount === 0) {
         toast({
           title: "Success",
-          description: `Email sent to ${successCount} students successfully!`
+          description: `📧 Email sent to ${successCount} users successfully!`
         });
       } else {
         toast({
           title: "Partial Success",
-          description: `Email sent to ${successCount} students, ${failureCount} failed. Check logs for details.`
+          description: `📊 Results: ${successCount} sent, ${failureCount} failed`
         });
       }
+      
+      console.log('📊 Quick Email Results:', data);
       
       setQuickEmailSubject('');
       setQuickEmailMessage('');
@@ -337,7 +355,7 @@ const AdminDashboard = () => {
       console.error('Failed to send quick email:', error);
       toast({
         title: "Error",
-        description: "Failed to send email. Please try again.",
+        description: `Failed to send email: ${error.message}`,
         variant: "destructive"
       });
     } finally {
@@ -379,107 +397,108 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 p-2 sm:p-0">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
             System overview and management for {profile?.full_name}
           </p>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-1 sm:space-x-2">
           <Badge variant="outline" className="flex items-center gap-1">
             <Shield className="h-3 w-3" />
-            Administrator
+            <span className="hidden sm:inline">Administrator</span>
+            <span className="sm:hidden">Admin</span>
           </Badge>
         </div>
       </div>
 
       {/* System Health Status */}
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Database</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium">Database</CardTitle>
             <Activity className="h-4 w-4 text-green-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">Healthy</div>
+          <CardContent className="p-3 sm:p-6 pt-0">
+            <div className="text-lg sm:text-2xl font-bold text-green-600">Healthy</div>
             <p className="text-xs text-muted-foreground">All systems operational</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">SMS Service</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium">SMS Service</CardTitle>
             <Smartphone className="h-4 w-4 text-green-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">Active</div>
+          <CardContent className="p-3 sm:p-6 pt-0">
+            <div className="text-lg sm:text-2xl font-bold text-green-600">Active</div>
             <p className="text-xs text-muted-foreground">Twilio connected</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Realtime</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium">Realtime</CardTitle>
             <TrendingUp className="h-4 w-4 text-green-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">Connected</div>
+          <CardContent className="p-3 sm:p-6 pt-0">
+            <div className="text-lg sm:text-2xl font-bold text-green-600">Connected</div>
             <p className="text-xs text-muted-foreground">Live updates active</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Storage</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium">Storage</CardTitle>
             <FileText className="h-4 w-4 text-green-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">Available</div>
+          <CardContent className="p-3 sm:p-6 pt-0">
+            <div className="text-lg sm:text-2xl font-bold text-green-600">Available</div>
             <p className="text-xs text-muted-foreground">File storage ready</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Main Statistics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium">Total Users</CardTitle>
             <Users className="h-4 w-4 text-blue-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalStudents + stats.totalTeachers || 0}</div>
+          <CardContent className="p-3 sm:p-6 pt-0">
+            <div className="text-lg sm:text-2xl font-bold">{stats.totalStudents + stats.totalTeachers || 0}</div>
             <p className="text-xs text-muted-foreground">
-              {stats.totalStudents || 0} students, {stats.totalTeachers || 0} teachers
+              {stats.totalStudents || 0} students<br className="sm:hidden" /><span className="hidden sm:inline">, </span>{stats.totalTeachers || 0} teachers
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Content Items</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium">Content Items</CardTitle>
             <FileText className="h-4 w-4 text-green-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent className="p-3 sm:p-6 pt-0">
+            <div className="text-lg sm:text-2xl font-bold">
               {(stats.totalNews || 0) + (stats.totalAnnouncements || 0) + (stats.totalEvents || 0)}
             </div>
             <p className="text-xs text-muted-foreground">
-              News, announcements, and events
+              News & announcements
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Exam Results</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium">Exam Results</CardTitle>
             <Trophy className="h-4 w-4 text-purple-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalExamResults || 0}</div>
+          <CardContent className="p-3 sm:p-6 pt-0">
+            <div className="text-lg sm:text-2xl font-bold">{stats.totalExamResults || 0}</div>
             <p className="text-xs text-muted-foreground">
               {stats.pendingExamResults || 0} pending publication
             </p>
@@ -487,12 +506,12 @@ const AdminDashboard = () => {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Published Content</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium">Published Content</CardTitle>
             <Bell className="h-4 w-4 text-orange-600" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent className="p-3 sm:p-6 pt-0">
+            <div className="text-lg sm:text-2xl font-bold">
               {(stats.publishedNews || 0) + (stats.publishedAnnouncements || 0)}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -502,43 +521,43 @@ const AdminDashboard = () => {
         </Card>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-3 sm:space-y-4">
+        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 text-xs sm:text-sm">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="content">Content Moderation</TabsTrigger>
-          <TabsTrigger value="health">Backend Health</TabsTrigger>
-          <TabsTrigger value="management">User & Content Management</TabsTrigger>
-          <TabsTrigger value="email">Email Testing</TabsTrigger>
+          <TabsTrigger value="content" className="hidden sm:flex">Content</TabsTrigger>
+          <TabsTrigger value="health" className="hidden lg:flex">Health</TabsTrigger>
+          <TabsTrigger value="management">Manage</TabsTrigger>
+          <TabsTrigger value="email" className="hidden sm:flex">Email</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="settings">System Settings</TabsTrigger>
+          <TabsTrigger value="settings" className="hidden lg:flex">Settings</TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 lg:grid-cols-2">
             <Card>
               <CardHeader>
                 <CardTitle>Recent Activity</CardTitle>
                 <CardDescription>Latest system activities and notifications</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-3 sm:p-6">
                 {recentActivity.length === 0 ? (
                   <div className="text-center py-4">
                     <Activity className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
                     <p className="text-sm text-muted-foreground">No recent activity</p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2 sm:space-y-3">
                     {recentActivity.slice(0, 5).map((activity, index) => (
-                      <div key={index} className="flex items-center space-x-3 p-2 rounded-lg bg-muted/50">
+                      <div key={index} className="flex items-center space-x-2 sm:space-x-3 p-2 rounded-lg bg-muted/50">
                         <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                         <div className="flex-1">
-                          <p className="text-sm font-medium">{activity.title}</p>
+                          <p className="text-xs sm:text-sm font-medium line-clamp-1">{activity.title}</p>
                           <p className="text-xs text-muted-foreground">
                             {new Date(activity.created_at).toLocaleString()}
                           </p>
                         </div>
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-xs hidden sm:flex">
                           {activity.type}
                         </Badge>
                       </div>
@@ -553,63 +572,70 @@ const AdminDashboard = () => {
                 <CardTitle>Quick Actions</CardTitle>
                 <CardDescription>Common administrative tasks</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
+              <CardContent className="p-3 sm:p-6">
+                <div className="space-y-1 sm:space-y-2">
                   <Button 
                     variant="outline" 
-                    className="w-full justify-start"
+                    className="w-full justify-start text-xs sm:text-sm h-8 sm:h-10"
                     onClick={() => handleSystemAction('refresh_data')}
                   >
                     <Activity className="h-4 w-4 mr-2" />
-                    Refresh System Data
+                    <span className="hidden sm:inline">Refresh System Data</span>
+                    <span className="sm:hidden">Refresh Data</span>
                   </Button>
                   <Button 
                     variant="outline" 
-                    className="w-full justify-start"
+                    className="w-full justify-start text-xs sm:text-sm h-8 sm:h-10"
                     onClick={() => handleSystemAction('send_announcement')}
                   >
                     <Bell className="h-4 w-4 mr-2" />
-                    Send System Announcement
+                    <span className="hidden sm:inline">Send System Announcement</span>
+                    <span className="sm:hidden">Send Announcement</span>
                   </Button>
                   <Button 
                     variant="outline" 
-                    className="w-full justify-start"
+                    className="w-full justify-start text-xs sm:text-sm h-8 sm:h-10"
                     onClick={() => handleSystemAction('export_data')}
                   >
                     <FileText className="h-4 w-4 mr-2" />
-                    Export System Data
+                    <span className="hidden sm:inline">Export System Data</span>
+                    <span className="sm:hidden">Export Data</span>
                   </Button>
                   <Button 
                     variant="outline" 
-                    className="w-full justify-start"
+                    className="w-full justify-start text-xs sm:text-sm h-8 sm:h-10"
                     onClick={() => handleSystemAction('system_backup')}
                   >
                     <Shield className="h-4 w-4 mr-2" />
-                    Create System Backup
+                    <span className="hidden sm:inline">Create System Backup</span>
+                    <span className="sm:hidden">Backup</span>
                   </Button>
                   <Button 
                     variant="outline" 
-                    className="w-full justify-start"
+                    className="w-full justify-start text-xs sm:text-sm h-8 sm:h-10"
                     onClick={() => setActiveTab('management')}
                   >
                     <Users className="h-4 w-4 mr-2" />
-                    Manage Content & Users
+                    <span className="hidden sm:inline">Manage Content & Users</span>
+                    <span className="sm:hidden">Manage Users</span>
                   </Button>
                   <Button 
                     variant="outline" 
-                    className="w-full justify-start"
+                    className="w-full justify-start text-xs sm:text-sm h-8 sm:h-10"
                     onClick={() => setActiveTab('content')}
                   >
                     <Trash2 className="h-4 w-4 mr-2" />
-                    Moderate Content
+                    <span className="hidden sm:inline">Moderate Content</span>
+                    <span className="sm:hidden">Moderate</span>
                   </Button>
                   <Button 
                     variant="outline" 
-                    className="w-full justify-start"
+                    className="w-full justify-start text-xs sm:text-sm h-8 sm:h-10"
                     onClick={() => setActiveTab('management')}
                   >
                     <Mail className="h-4 w-4 mr-2" />
-                    Send Email to Students
+                    <span className="hidden sm:inline">Send Email to Students</span>
+                    <span className="sm:hidden">Send Email</span>
                   </Button>
                 </div>
               </CardContent>
@@ -620,14 +646,15 @@ const AdminDashboard = () => {
           <Card>
             <CardHeader>
               <CardTitle>Quick Email</CardTitle>
-              <CardDescription>Send a quick message to all students</CardDescription>
+              <CardDescription>Send a quick message to all students and teachers</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-3 sm:p-6">
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="quick-subject">Subject</Label>
                   <Input
                     id="quick-subject"
+                    className="text-sm"
                     placeholder="Enter email subject"
                     value={quickEmailSubject}
                     onChange={(e) => setQuickEmailSubject(e.target.value)}
@@ -637,19 +664,21 @@ const AdminDashboard = () => {
                   <Label htmlFor="quick-message">Message</Label>
                   <Textarea
                     id="quick-message"
+                    className="text-sm min-h-20 sm:min-h-24"
                     placeholder="Enter your message"
                     value={quickEmailMessage}
                     onChange={(e) => setQuickEmailMessage(e.target.value)}
-                    rows={3}
+                    rows={4}
                   />
                 </div>
                 <Button 
                   onClick={sendQuickEmail} 
                   disabled={!quickEmailSubject || !quickEmailMessage || loading}
-                  className="w-full"
+                  className="w-full text-sm h-10"
                 >
                   {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Mail className="h-4 w-4 mr-2" />}
-                  Send to All Students
+                  <span className="hidden sm:inline">Send to All Students & Teachers</span>
+                  <span className="sm:hidden">Send Email</span>
                 </Button>
               </div>
             </CardContent>
@@ -663,31 +692,33 @@ const AdminDashboard = () => {
                   <CardTitle>Recent Content</CardTitle>
                   <CardDescription>Latest content created by teachers and students</CardDescription>
                 </div>
-                <Button onClick={loadAdminData} variant="outline" size="sm">
-                  Refresh
+                <Button onClick={loadAdminData} variant="outline" size="sm" className="text-xs">
+                  <span className="hidden sm:inline">Refresh</span>
+                  <span className="sm:hidden">↻</span>
                 </Button>
               </div>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
+            <CardContent className="p-3 sm:p-6">
+              <div className="space-y-2 sm:space-y-3">
                 {recentContent.slice(0, 5).map((item) => (
-                  <div key={`${item.type}-${item.id}`} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-                    <div className="flex items-center space-x-3">
+                  <div key={`${item.type}-${item.id}`} className="flex items-center justify-between p-2 sm:p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
                       {getContentTypeIcon(item.type)}
-                      <div>
-                        <h4 className="font-medium text-sm truncate max-w-xs">{item.title}</h4>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-xs sm:text-sm truncate">{item.title}</h4>
                         <p className="text-xs text-muted-foreground">
-                          {item.author_name} • {new Date(item.created_at).toLocaleDateString()}
+                          <span className="hidden sm:inline">{item.author_name} • </span>
+                          {new Date(item.created_at).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <Badge variant={getContentTypeColor(item.type) as any} className="text-xs">
+                    <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+                      <Badge variant={getContentTypeColor(item.type) as any} className="text-xs hidden sm:flex">
                         {item.type}
                       </Badge>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="destructive" size="sm">
+                          <Button variant="destructive" size="sm" className="h-7 w-7 p-0 sm:h-8 sm:w-8">
                             <Trash2 className="h-3 w-3" />
                           </Button>
                         </AlertDialogTrigger>
